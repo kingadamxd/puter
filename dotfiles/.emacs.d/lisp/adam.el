@@ -111,35 +111,6 @@
          (call-interactively #'adam/switch-buffer))
         (t (call-interactively #'adam/imenu))))
 
-(defvar adam/xgfxtablet-name "UGTABLET 10 inch PenTablet Pen (0)")
-
-(defun adam/xgfxtablet ()
-  "Set up gfxtablet for multi-monitor support."
-  (interactive)
-  (if-let ((x (string-chop-newline (shell-command-to-string (concat "xinput list --id-only" " " (adam/qoutize-string adam/xgfxtablet-name))))))
-      (let ((cmd (concat "xinput map-to-output" " " x " " "HDMI-1")))
-        (ignore-errors
-          (start-process-shell-command cmd nil cmd)
-          (message "XGFXtablet set up!")))
-    (message "XGFXtablet pen not yet registered!")))
-
-(defvar adam/xsettings-list
-  '("setxkbmap gb"
-    "xset r rate 200 80"
-    "xset s off -dpms"
-    "xgfxtablet"
-    ;; "xrandr --output HDMI-1 --primary --output HDMI-2 --right-of HDMI-1"
-    ))
-
-(defun adam/xsettings ()
-  "Call puter xsettings script."
-  (interactive)
-  (dolist (el adam/xsettings-list)
-    (ignore-errors
-      (start-process-shell-command el nil el)))
-  (adam/xgfxtablet)
-  (message "XSettings applied"))
-
 ;; (defun adam/set-wallpaper (pape &optional window-transparency)
 ;;   "Set the desktop wallpaper to a filepath PAPE."
 ;;   (interactive)
@@ -151,19 +122,20 @@
 
 (defun adam/tar-file (file-path &optional output-path)
   "Use linux tar util to tar a file FILE-PATH and output to OUTPUT-PATH."
-  (interactive)
+  (interactive "Ftar: ")
   (let* ((output (or output-path (concat "./" (adam/change-file-suffix file-path "tar.gz"))))
          (cmd (concat "tar -cvf" " " output " " file-path)))
     (start-process-shell-command cmd nil cmd)))
 
 (defun adam/untar-file (file-path)
   "Use linux tar util to untar the compressed file FILE-PATH."
-  (interactive)
+  (interactive "Funtar: ")
   (let ((cmd (concat "tar -xvf" " " file-path)))
     (start-process-shell-command cmd nil cmd)))
 
 (defun adam/yt-music (url)
   "Use commandline util yt-dlp to download a youtube link URL as a mp3 file."
+  (interactive "surl: ")
   (let ((cmd (concat "yt-dlp -f bestaudio -x --audio-format mp3 --audio-quality 330k" " " url)))
     (start-process-shell-command cmd nil cmd)))
 
@@ -173,15 +145,6 @@
   (if (shell-command "~/puter/scriptz/puter-linkup")
       (message "Linked-up!")
       (message "Linked-up failed!")))
-
-;; Why do I have two versions of this function???
-
-(defun puter/linkup ()
-  "Puter linked up! sneed it or keep it?"
-  (interactive)
-  (if (shell-command "puter-linkup")
-      (message "Linked up!")
-    (message "Linkup failed!")))
 
 (defvar adam/auth-file "~/adam/auth.json")
 
@@ -205,6 +168,34 @@
   (let ((inhibit-read-only t))
     (erase-buffer)))
 
+(defvar adam/xsettings/xgfxtablet-name "UGTABLET 10 inch PenTablet Pen (0)")
+
+(defun adam/xsettings/xgfxtablet-apply ()
+  "Set up gfxtablet for multi-monitor support."
+  (interactive)
+  (if-let ((x (string-chop-newline (shell-command-to-string (concat "xinput list --id-only" " " (adam/qoutize-string adam/xsettings/xgfxtablet-name))))))
+      (let ((cmd (concat "xinput map-to-output" " " x " " "HDMI-1")))
+        (ignore-errors
+          (start-process-shell-command cmd nil cmd)
+          (message "XGFXtablet set up!")))
+    (message "XGFXtablet pen not yet registered!")))
+
+(defvar adam/xsettings/list
+  '("setxkbmap gb"
+    "xset r rate 200 80"
+    "xset s off -dpms"
+    "xgfxtablet"
+    ;; "xrandr --output HDMI-1 --primary --output HDMI-2 --right-of HDMI-1"
+    ))
+
+(defun adam/xsettings/apply ()
+  "Call puter xsettings script."
+  (interactive)
+  (dolist (el adam/xsettings/list)
+    (ignore-errors
+      (start-process-shell-command el nil el)))
+  (adam/xsettings/xgfxtablet-apply)
+  (message "XSettings applied"))
 
 (provide 'adam)
 ;;; adam.el ends here

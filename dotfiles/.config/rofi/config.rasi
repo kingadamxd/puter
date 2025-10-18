@@ -1,6 +1,141 @@
 configuration {
     modes: "window,run,drun";
-    // font: "JetBrainsMonoNerdFont 14";
-    font: "IosevkaNerdFontMono 16";
+    // font: "ProggyClean NerdFont 21";
+    font: "Iosevka Nerdfont 12";
     show-icons: true;
+}
+
+* {
+    OFF-WHITE: rgba(245, 245, 245, 1.0);
+    // TRANS-BLACK: rgba(0, 0, 0 , 0.95);
+    TRANS-BLACK: rgba(0, 0, 0 , 0.90);
+    TRANS: rgba(0, 0, 0, 0.0);
+    GRAY: Gray;
+    ALT: rgba(0, 43, 54, 1.0);
+    BLUE: rgba (38, 139, 210, 1.0);
+    // RED: rgba (210, 139, 38, 1.0);
+    RED: rgba (255, 255, 255, 1.0);
+    ACTIVE: var(BLUE);
+    URGENT: var(BLUE);
+}
+
+window {
+    padding: 0;
+    background-color: var(TRANS);
+    border-color: rgba(10, 10, 10, 1.0);
+    border: 2;
+    border-radius: 6;
+    read: true;
+}
+
+mainbox {
+    padding: 8;
+    background-color: var(TRANS-BLACK);
+    border-color: var(OFF-WHITE);
+    border: 2;
+    border-radius: 5;
+}
+
+textbox {
+    text-color: var(OFF-WHITE);
+}
+
+inputbar {
+    text-color: var(OFF-WHITE);
+    children:   [ "prompt", "textbox-prompt-colon", "entry", "overlay", "num-filtered-rows", "textbox-num-sep", "num-rows", "case-indicator" ];
+
+}
+
+entry {
+    text-color: var(OFF-WHITE);
+    placeholder-color: var(GRAY);
+    placeholder: "its dangerous to go alone...";
+}
+
+textbox-prompt-colon {
+    expand: false;
+    str: ":";
+    text-color: inherit;
+}
+
+prompt {
+    text-color: var(OFF-WHITE);
+}
+
+message {
+    border: 2px dash 0px 0px ;
+}
+
+sidebar {
+    border-color: var(separatorcolor);
+    border: 2px dash 0px 0px ;
+}
+
+listview {
+    layout: vertical;
+    lines: 20;
+}
+
+overlay {
+    text-color: rgba(245, 245, 245, 1.0);
+}
+
+element {
+    padding: 2;
+    cursor: pointer;
+    spacing: 5;
+    border: 0;
+}
+
+element-text {
+    highlight: RED;
+}
+
+element normal.normal {
+    background-color: var(TRANS);
+    text-color: var(GRAY);
+}
+element normal.urgent {
+    background-color: var(TRANS);
+    text-color: var(URGENT);
+}
+element normal.active {
+    background-color: var(TRANS);
+    text-color: var(ACTIVE);
+}
+
+element alternate.normal {
+    background-color: var(TRANS);
+    text-color: var(GRAY);
+}
+element alternate.urgent {
+    background-color: var(TRANS);
+    text-color: var(URGENT);
+}
+element alternate.active {
+    background-color: var(TRANS);
+    text-color: var(ACTIVE);
+}
+
+element selected.normal {
+    background-color: var(TRANS);
+    text-color: var(OFF-WHITE);
+}
+element selected.urgent {
+    background-color: var(TRANS);
+    text-color: var(OFF-WHITE);
+}
+element selected.active {
+    background-color: var(TRANS);
+    text-color: var(OFF-WHITE);
+}
+
+num-rows {
+    expand: false;
+    text-color: var(GRAY);
+}
+textbox-num-sep {
+    expand: false;
+    str: "/";
+    text-color: var(GRAY);
 }

@@ -143,6 +143,10 @@
 (use-package all-the-icons-ivy)
 (use-package all-the-icons-nerd-fonts)
 
+(use-package colorful-mode
+  :config
+  (global-colorful-mode 1))
+
 (use-package which-key
   :init
   (which-key-mode 1)
@@ -169,8 +173,9 @@
         ("RET" . nil))
   :config
   (setq company-minimum-prefix-length 0)
-  (setq company-idle-delay 0.0)
-  (global-company-mode 1))
+  (setq company-idle-delay 0.0))
+
+(global-company-mode 1)
 
 (use-package doom-themes
   :config
@@ -296,8 +301,8 @@
     "D" 'dired-do-delete)
   (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
 
-(setq adam/pdf-reader "xreader")
-(setq adam/image-viewer "xviewer")
+(setq adam/pdf-reader "zathura")
+(setq adam/image-viewer "swayimg")
 (setq adam/video-player "mpv")
 
 (use-package dired-open
@@ -538,10 +543,10 @@
 
 (require 'adam-mode)
 
-(load-theme 'modus-vivendi-tinted t)
+;; (load-theme 'modus-vivendi-tinted t)
 ;; (load-theme 'doom-winter-is-coming-dark-blue t)
-;; (set-frame-parameter nil 'alpha-background 90)
-;; (load-theme 'doom-homage-black t)
+(load-theme 'doom-homage-black t)
+(set-frame-parameter nil 'alpha-background 90)
 (load-file custom-file)
 (setq inhibit-startup-screen t)
 (adam/goto-homepage)

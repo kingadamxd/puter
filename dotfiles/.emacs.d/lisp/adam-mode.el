@@ -47,6 +47,8 @@
             (define-key map (kbd "M-K") 'windmove-swap-states-up)
             (define-key map (kbd "M-L") 'windmove-swap-states-right)
 
+            (define-key map (kbd "M-m") 'delete-other-windows)
+
             (define-key map (kbd "C-x c f")
                         #'(lambda () (interactive) (kill-new (buffer-file-name))))
             (define-key map (kbd "C-x c d")
