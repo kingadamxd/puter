@@ -197,5 +197,25 @@
   (adam/xsettings/xgfxtablet-apply)
   (message "XSettings applied"))
 
+(defun million (x)
+  "Take a given number X, and return X million."
+  (* x 1000000))
+
+(defun thousand (x)
+  "Take a given number X, and return X thousand."
+  (* x 1000))
+
+(defun adam/eshell ()
+  "Start eshell mode in the current directory."
+  (interactive)
+  (let ((cached-cwd default-directory)
+        (eshell-buf (get-buffer "*eshell*")))
+    (when eshell-buf
+      (let ((kill-buf (not (with-current-buffer eshell-buf
+                             (equal cached-cwd default-directory)))))
+        (when kill-buf
+          (kill-buffer eshell-buf))))
+    (eshell)))
+
 (provide 'adam)
 ;;; adam.el ends here

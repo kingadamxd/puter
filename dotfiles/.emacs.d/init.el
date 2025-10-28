@@ -282,8 +282,6 @@
   :config
   (yas-global-mode 1))
 
-;; * DIRED
-
 (use-package dired
   :straight nil
   :commands (dired dired-jump)
@@ -301,7 +299,7 @@
     "D" 'dired-do-delete)
   (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
 
-(setq adam/pdf-reader "zathura")
+(setq adam/pdf-reader "firefox")
 (setq adam/image-viewer "swayimg")
 (setq adam/video-player "mpv")
 
@@ -341,7 +339,9 @@
   :config
   (eshell-syntax-highlighting-global-mode 1))
 
-;; (use-package vterm)
+(use-package vterm)
+
+(use-package sudo-edit)
 
 (use-package multiple-cursors)
 
@@ -397,6 +397,9 @@
 
 (use-package clojure-mode)
 (use-package cider)
+
+(use-package geiser)
+(use-package geiser-guile)
 
 (use-package cc-mode
   :hook ((c-mode . lsp-mode)
@@ -487,15 +490,6 @@
     "bm" '(adam/ibuffer :wk "buffer menu")
     "bx" '(kill-buffer :wk "buffer kill")
 
-    ;; "e" '(:ignore t :wk "eval")
-    ;; "ee" '(eval-expression :wk "eval expression")
-    ;; "eb" '(eval-buffer :wk "eval buffer")
-    ;; "ex" '(eval-last-sexp :wk "eval last sexpr")
-
-    ;; "h" '(:ignore t :wk "help")
-    ;; "hf" '(counsel-describe-function :wk "help function")
-    ;; "hv" '(counsel-describe-variable :wk "help variable")
-
     "l" '(:ignore t :wk "lsp")
     "lr" '(lsp-rename :wk "lsp rename")
     "ld" '(flycheck-list-errors :wk "lsp errors")
@@ -514,7 +508,7 @@
     "wl" '(evil-window-right :wk "window right")
 
     "c" '(:ignore t :wk "command")
-    "ce" '(eshell :wk "command eshell")
+    "ce" '(adam/eshell :wk "command eshell")
     "cc" '((lambda ()
                (interactive)
                (call-interactively #'compile))
@@ -546,7 +540,7 @@
 ;; (load-theme 'modus-vivendi-tinted t)
 ;; (load-theme 'doom-winter-is-coming-dark-blue t)
 (load-theme 'doom-homage-black t)
-(set-frame-parameter nil 'alpha-background 90)
+;; (set-frame-parameter nil 'alpha-background 90)
 (load-file custom-file)
 (setq inhibit-startup-screen t)
 (adam/goto-homepage)
