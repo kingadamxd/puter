@@ -11,13 +11,8 @@
   :group 'adam
   :lighter " adam-mode"
   :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "M-x") 'adam/M-x)
-            (define-key map (kbd "C-x SPC") 'adam/M-x)
-            (define-key map (kbd "C-x j") 'adam/fuzzy-find)
-            (define-key map (kbd "C-x .") 'adam/find-file)
-            (define-key map (kbd "C-x ;") 'counsel-linux-app)
-            (define-key map (kbd "C-x b") 'adam/switch-buffer)
-            (define-key map (kbd "C-x C-b") 'adam/ibuffer)
+            (define-key map (kbd "M-x") 'execute-extended-command)
+            (define-key map (kbd "C-x SPC") 'execute-extended-command)
             
             (define-key map (kbd "C-x k") 'kill-buffer)
             (define-key map (kbd "C-x K") 'kill-buffer-and-window)

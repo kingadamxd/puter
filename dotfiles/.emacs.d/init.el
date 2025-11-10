@@ -79,60 +79,44 @@
 
 (require 'adam)
 
+(use-package vertico
+  :init
+  (vertico-mode)
+  :bind (:map vertico-map
+              ("C-j" . vertico-next)
+              ("C-k" . vertico-previous))
+  :config
+  (setq vertico-cycle t)
+  (setq imenu-auto-rescan t))
+
+(use-package marginalia
+  :init
+  (marginalia-mode))
+
+(defun adam/elisp-regex-generate (matches)
+    (mapcar (lambda (m)
+              (list (car m) (concat "^\\s-*(" (cdr m) "\\s-+\\([[:graph:]]+\\)") 1)) matches))
+
+(defvar adam/elisp-regex (adam/elisp-regex-generate
+                          '(("function" . "defun")
+                            ("variable" . "defvar")
+                            ("macro" . "defmacro")
+                            ("require" . "require")
+                            ("package" . "use-package")
+                            ("minor-mode" . "define-minor-mode"))))
+
+(defun adam/elisp-setup ()
+    "custom elisp setup."
+    (setq-local imenu-generic-expression adam/elisp-regex))
+
 (use-package emacs
   :hook (emacs-lisp-mode . adam/elisp-setup)
   :config
-  (defun adam/elisp-setup ()
-    "custom elisp setup."
-    (setq-local imenu-generic-expression
-                '(("function" "^\\s-*(defun\\s-+\\([^[:space:]]+\\)" 1)
-                  ("variable" "^\\s-*(defvar\\s-+\\([^[:space:]]+\\)" 1)
-                  ("macro" "^\\s-*(defmacro\\s-+\\([^[:space:]]+\\)" 1)
-                  ("require" "^\\s-*(require\\s-+\\([^[:space:]]+\\)" 1)
-                  ("package" "^\\s-*(use-package\\s-+\\([^[:space:]]+\\)" 1)
-                  ("minor-mode" "^\\s-*(define-minor-mode\\s-+\\([^[:space:]]+\\)" 1)
-                  ))))
-
-(use-package counsel
-  :init
-  (counsel-mode 1)
-  :bind (:map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history))
-  :config
-  (setq counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
-  (counsel-mode t))
+  (context-menu-mode t))
 
 (use-package swiper)
+
 (use-package flx)
-(use-package ivy
-  :bind
-  (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :custom
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq enable-recursive-minibuffers t)
-  :config
-  (use-package org-ivy-search)
-  (ivy-mode 1)
-  (setq ivy-height 20)
-  (setq ivy-re-builders-alist '((t . ivy--regex)
-                                (t . ivy--regex-fuzzy))))
-
-
-(use-package ivy-rich
-  :after ivy)
 
 (use-package all-the-icons)
 ;; on first install call M-x all-the-icons-install-fonts
@@ -140,7 +124,6 @@
 (use-package all-the-icons-completion)
 (use-package all-the-icons-dired)
 (use-package all-the-icons-ibuffer)
-(use-package all-the-icons-ivy)
 (use-package all-the-icons-nerd-fonts)
 
 (use-package colorful-mode
@@ -156,10 +139,6 @@
         which-key-sort-uppercase-first nil
         which-key-max-display-columns nil
         which-key-min-display-lines 6))
-
-(use-package counsel-projectile
-  :config
-  (counsel-projectile-mode))
 
 (use-package rainbow-delimiters
   :hook
@@ -257,26 +236,7 @@
     (setq projectile-project-search-path '("~/work")))
   (setq projectile-switch-project-action #'projectile-dired))
 
-(use-package flycheck
-  :config
-  (global-flycheck-mode 1))
-
-(use-package lsp-mode
-  :init
-  (setq lsp-log-io nil)
-  (setq lsp-keymap-prefix "C-c l")
-  (setq lsp-headerline-breadcrumb-enable nil)
-  (setq lsp-enable-which-key-integration t)
-  :config
-  (setq lsp-clients-clangd-args '("--header-insertion=never")))
-
-(use-package lsp-ui
-  :config
-  (setq lsp-ui-doc-enable nil)
-  (setq lsp-ui-doc-show-with-cursor nil)
-  (setq lsp-ui-doc-show-with-mouse nil))
-
-(use-package lsp-ivy)
+(use-package flycheck)
 
 (use-package yasnippet
   :config
@@ -299,8 +259,8 @@
     "D" 'dired-do-delete)
   (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
 
-(setq adam/pdf-reader "firefox")
-(setq adam/image-viewer "swayimg")
+(setq adam/pdf-reader "okular")
+(setq adam/image-viewer "feh")
 (setq adam/video-player "mpv")
 
 (use-package dired-open
@@ -339,21 +299,14 @@
   :config
   (eshell-syntax-highlighting-global-mode 1))
 
+
 (use-package vterm)
 
 (use-package sudo-edit)
 
 (use-package multiple-cursors)
 
-(use-package helpful
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
+(use-package helpful)
 
 (use-package magit)
 (use-package git-gutter
@@ -380,8 +333,7 @@
 (use-package js2-mode
   :config
   (add-hook 'js-mode-hook 'js2-minor-mode)
-  (add-hook 'js2-mode-hook 'ac-js2-mode)
-  (add-hook 'js-mode-hook 'lsp-mode))
+  (add-hook 'js2-mode-hook 'ac-js2-mode))
 
 (use-package org
   :config
@@ -402,8 +354,6 @@
 (use-package geiser-guile)
 
 (use-package cc-mode
-  :hook ((c-mode . lsp-mode)
-         (c++-mode . lsp-mode))
   :config
   (c-add-style
    "adam"
@@ -416,38 +366,56 @@
       (inline-open . +)
       (block-open . +)
       (brace-list-open . +)
-      (case-label . +)
-      )))
+      (case-label . +))))
   (setq c-default-style "adam"))
 
 (use-package zig-mode
   :config
-  (add-hook 'zig-mode-hook 'lsp-mode)
   (add-hook 'zig-mode-hook
             #'(lambda ()(interactive)(zig-format-on-save-mode -1))))
 
-(use-package rust-mode
-  :config
-  (add-hook 'rust-mode-hook 'lsp-mode))
+(use-package rust-mode)
 
-(use-package go-mode
-  :config
-  (add-hook 'go-mode-hook 'lsp-mode))
+(use-package go-mode)
 
 (use-package lua-mode
   :config
-  (add-hook 'lua-mode-hook 'lsp-mode)
   (define-key lua-mode-map (kbd "<normal-state> K") nil))
 
 (use-package gdscript-mode
   :config
-  (add-hook 'gdscript-mode-hook 'lsp-mode)
   (setq gdscript-godot-executable "/bin/godot/godot")
   (setq gdscript-use-tab-indents t)
   (setq gdscript-gdformat-save-and-format nil))
 
 (use-package glsl-mode)
 (use-package wgsl-mode)
+
+(defvar adam/lsp-mode-hooks
+  '(lua-mode-hook
+    go-mode-hook
+    rust-mode-hook
+    zig-mode-hook
+    gdscript-mode-hook
+    c-mode-hook
+    c++-mode-hook))
+
+(use-package lsp-mode
+  :init
+  (setq lsp-log-io nil)
+  (setq lsp-keymap-prefix "C-c l")
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-enable-which-key-integration t)
+  :config
+  (setq lsp-clients-clangd-args '("--header-insertion=never"))
+  (dolist (el adam/lsp-mode-hooks)
+    (add-hook el 'lsp-mode)))
+
+(use-package lsp-ui
+  :config
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-doc-show-with-cursor nil)
+  (setq lsp-ui-doc-show-with-mouse nil))
 
 (use-package general
   :config
@@ -459,13 +427,10 @@
     :prefix "SPC"
     :global-prefix "C-SPC")
   (adam/leader-keys
-    "SPC" '(adam/M-x :wk "M-x")
+    "SPC" '(execute-extended-command :wk "M-x")
 
     "s" '(:ignore t :wk "search")
     "ss" '(swiper :wk "search swiper")
-
-    "d" '(:ignore t :wk "debug")
-    "dm" '(dap-hydra :wk "debug menu")
 
     "a" '(:ignore t :wk "ai")
     "aa" '(gptel :wk "ai start")
@@ -477,17 +442,17 @@
     "fp" '(list-processes :wk "find processes")
     "ff" '(adam/fuzzy-find :wk "find fuzzy-contextual")
     "fa" '(lsp-ivy-workspace-symbol :wk "find lsp symbol")
-    "f." '(adam/find-file :wk "find file")
+    "f." '(find-file-existing :wk "find file")
     "f," '(projectile-find-file :wk "find project file")
     "fz" '(projectile-switch-project :wk "find project")
-    "fn" '(adam/find-file-new :wk "file file new")
+    "fn" '(find-file :wk "file file new")
     "fe" '(list-matching-lines :wk "find regex")
 
     "gg" '(magit :wk "magit")
 
     "b" '(:ignore t :wk "buffer")
-    "bb" '(adam/switch-buffer :wk "buffer switch")
-    "bm" '(adam/ibuffer :wk "buffer menu")
+    "bb" '(switch-to-buffer :wk "buffer switch")
+    "bm" '(ibuffer :wk "buffer menu")
     "bx" '(kill-buffer :wk "buffer kill")
 
     "l" '(:ignore t :wk "lsp")
@@ -537,10 +502,13 @@
 
 (require 'adam-mode)
 
-;; (load-theme 'modus-vivendi-tinted t)
-;; (load-theme 'doom-winter-is-coming-dark-blue t)
-(load-theme 'doom-homage-black t)
+(defvar adam/init-theme 'modus-vivendi-tinted)
+;; (defvar adam/init-theme 'doom-winter-is-coming-dark-blue)
+;; (defvar adam/init-theme 'doom-homage-black)
+(load-theme adam/init-theme t)
+
 ;; (set-frame-parameter nil 'alpha-background 90)
+
 (load-file custom-file)
 (setq inhibit-startup-screen t)
 (adam/goto-homepage)

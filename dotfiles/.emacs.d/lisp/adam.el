@@ -61,36 +61,6 @@
   (interactive)
   (load-file user-init-file))
 
-(defun adam/switch-buffer ()
-  "Switch to buffer command."
-  (interactive)
-  (call-interactively #'counsel-switch-buffer))
-
-(defun adam/ibuffer ()
-  "Interactive buffer menu."
-  (interactive)
-  (call-interactively #'ibuffer))
-
-(defun adam/find-file ()
-  "Find file."
-  (interactive)
-  (call-interactively #'find-file-existing))
-
-(defun adam/find-file-new ()
-  "File file new."
-  (interactive)
-  (call-interactively #'counsel-find-file))
-
-(defun adam/imenu ()
-  "Interactive menu."
-  (interactive)
-  (call-interactively #'counsel-imenu))
-
-(defun adam/M-x ()
-  "Meta X."
-  (interactive)
-  (call-interactively #'counsel-M-x))
-
 (defun adam/lookup-func ()
   "Lookup symbol under cursor."
   (interactive)
@@ -100,16 +70,20 @@
          (call-interactively #'lsp-describe-thing-at-point))
         (t (call-interactively #'man))))
 
+(defvar adam/fuzzy-find-alist
+  '((dired-mode . find-file)
+    (eshell-mode . find-file)
+    (ibuffer-mode . switch-to-buffer)
+    (t . imenu)))
+
 (defun adam/fuzzy-find ()
   "Fuzzy find based on the contents of the current buffer."
   (interactive)
-  (cond ((eq major-mode 'dired-mode)
-         (call-interactively #'adam/find-file))
-        ((eq major-mode 'eshell-mode)
-         (call-interactively #'adam/find-file))
-        ((eq major-mode 'ibuffer-mode)
-         (call-interactively #'adam/switch-buffer))
-        (t (call-interactively #'adam/imenu))))
+  (if-let ((a (assoc major-mode adam/fuzzy-find-alist)))
+      (call-interactively (cdr a))
+    (if-let ((b (assoc t adam/fuzzy-find-alist)))
+        (call-interactively (cdr b))
+      (error "no fallback value found"))))
 
 ;; (defun adam/set-wallpaper (pape &optional window-transparency)
 ;;   "Set the desktop wallpaper to a filepath PAPE."
@@ -216,6 +190,12 @@
         (when kill-buf
           (kill-buffer eshell-buf))))
     (eshell)))
+
+(defun adam/dump-file (file-path)
+  "Dump the contents of a file FILE-PATH as a string."
+  (with-temp-buffer
+    (insert-file-contents file-path)
+    (buffer-string)))
 
 (provide 'adam)
 ;;; adam.el ends here
