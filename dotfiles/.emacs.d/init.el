@@ -81,6 +81,20 @@
 
 (require 'adam)
 
+(defun adam/set-frame-default-params ()
+  "Set all frame params."
+  (adam/set-font "Iosevka Nerd Font Mono" 12))
+
+;; Emacs daemon-mode doesn't load frame params correctly.
+(if (daemonp)
+      (add-hook 'after-make-frame-functions
+                (lambda (frame)
+                  (with-selected-frame frame
+                    (adam/set-frame-default-params))))
+  (adam/set-frame-default-params))
+
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
 (use-package vertico
   :init
   (vertico-mode)
@@ -154,7 +168,7 @@
         ("<return>" . nil)
         ("RET" . nil))
   :config
-  (setq company-minimum-prefix-length 0)
+  (setq company-minimum-prefix-length 1)
   (setq company-idle-delay 0.0))
 
 (global-company-mode 1)
@@ -334,8 +348,7 @@
 (use-package cider)
 
 (use-package geiser)
-(use-package geiser-racket)
-(use-package racket-mode)
+(use-package geiser-guile)
 
 (use-package cc-mode
   :config

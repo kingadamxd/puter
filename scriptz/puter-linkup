@@ -1,4 +1,4 @@
 #!/bin/sh
-cd ~/puter/
 
+cd $HOME/puter/
 stow --no-folding dotfiles

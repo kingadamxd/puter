@@ -1,6 +1,5 @@
 ;;; package -- Summary
 ;;; Commentary:
-
 ;;; Code:
 
 (require 'json)
@@ -31,20 +30,6 @@
     (add-to-list
      'default-frame-alist
      `(font . ,font-frame))))
-
-(defun adam/set-frame-default-params ()
-  "Set all frame params."
-  (adam/set-font "Iosevka Nerd Font Mono" 12))
-
-;; Emacs daemon-mode doesn't load frame params correctly.
-(if (daemonp)
-      (add-hook 'after-make-frame-functions
-                (lambda (frame)
-                  (with-selected-frame frame
-                    (adam/set-frame-default-params))))
-  (adam/set-frame-default-params))
-
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 (defun adam/goto-init-file ()
   "Open init file."
@@ -84,15 +69,6 @@
     (if-let ((b (assoc t adam/fuzzy-find-alist)))
         (call-interactively (cdr b))
       (error "no fallback value found"))))
-
-;; (defun adam/set-wallpaper (pape &optional window-transparency)
-;;   "Set the desktop wallpaper to a filepath PAPE."
-;;   (interactive)
-;;   (when window-transparency
-;;     (set-frame-parameter nil 'alpha-background window-transparency))
-;;   (if (shell-command (concat "feh --bg-fill " pape))
-;;       (message (concat "wallpaper set: " pape))
-;;       (message (concat "wallpaper failed to be set to: " pape))))
 
 (defun adam/tar-file (file-path &optional output-path)
   "Use linux tar util to tar a file FILE-PATH and output to OUTPUT-PATH."
@@ -142,42 +118,11 @@
   (let ((inhibit-read-only t))
     (erase-buffer)))
 
-(defvar adam/xsettings/xgfxtablet-name "UGTABLET 10 inch PenTablet Pen (0)")
-
-(defun adam/xsettings/xgfxtablet-apply ()
-  "Set up gfxtablet for multi-monitor support."
-  (interactive)
-  (if-let ((x (string-chop-newline (shell-command-to-string (concat "xinput list --id-only" " " (adam/qoutize-string adam/xsettings/xgfxtablet-name))))))
-      (let ((cmd (concat "xinput map-to-output" " " x " " "HDMI-1")))
-        (ignore-errors
-          (start-process-shell-command cmd nil cmd)
-          (message "XGFXtablet set up!")))
-    (message "XGFXtablet pen not yet registered!")))
-
-(defvar adam/xsettings/list
-  '("setxkbmap gb"
-    "xset r rate 200 80"
-    "xset s off -dpms"
-    "xgfxtablet"
-    ;; "xrandr --output HDMI-1 --primary --output HDMI-2 --right-of HDMI-1"
-    ))
-
-(defun adam/xsettings/apply ()
+(defun adam/xsettings ()
   "Call puter xsettings script."
   (interactive)
-  (dolist (el adam/xsettings/list)
-    (ignore-errors
-      (start-process-shell-command el nil el)))
-  (adam/xsettings/xgfxtablet-apply)
+  (shell-command "puter-xsettings")
   (message "XSettings applied"))
-
-(defun million (x)
-  "Take a given number X, and return X million."
-  (* x 1000000))
-
-(defun thousand (x)
-  "Take a given number X, and return X thousand."
-  (* x 1000))
 
 (defun adam/eshell ()
   "Start eshell mode in the current directory."
@@ -196,6 +141,14 @@
   (with-temp-buffer
     (insert-file-contents file-path)
     (buffer-string)))
+
+(defun million (x)
+  "Take a given number X, and return X million."
+  (* x 1000000))
+
+(defun thousand (x)
+  "Take a given number X, and return X thousand."
+  (* x 1000))
 
 (provide 'adam)
 ;;; adam.el ends here

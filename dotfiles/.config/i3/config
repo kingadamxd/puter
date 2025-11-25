@@ -4,19 +4,19 @@ font pango:TerminessNerdFontMono 12
 exec --no-startup-id dex --autostart --environment i3
 exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 exec --no-startup-id nm-applet
+exec --no-startup-id picom
+exec --no-startup-id $HOME/.config/polybar/launch.sh
+exec --no-startup-id puter-xsettings
 
-set $refresh_i3status killall -SIGUSR1 i3status
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
-bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
-bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10%
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10%
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle
 
 floating_modifier $mod
 tiling_drag modifier titlebar
 
-# Basic Controls
-
-bindsym $mod+Return exec i3-sensible-terminal
+bindsym $mod+Return exec "kitty"
 bindsym $mod+w kill
 bindsym $mod+colon exec "rofi -show drun"
 bindsym $mod+m exec "rofi -show window"
@@ -61,7 +61,6 @@ bindsym $mod+d focus child
 
 for_window [all] border normal 2
 
-# Colours               Border  Fill    Font    Indicator Child-Border
 client.focused          #4c7899 #285577 #ffffff #2e9ef4   #285577
 client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
 client.unfocused        #333333 #222222 #888888 #292d2e   #222222
@@ -69,8 +68,6 @@ client.urgent           #2f343a #900000 #ffffff #900000   #900000
 client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
 
 client.background       #ffffff
-
-# Workspaces
 
 set $ws1 "0"
 set $ws2 "1"
@@ -126,8 +123,3 @@ mode "resize" {
 }
 
 bindsym $mod+r mode "resize"
-
-bar {
-    tray_output primary
-    status_command i3status
-}

@@ -19,9 +19,6 @@ export LESSHISTFILE=".history"
 export GOPATH=$HOME/go
 export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 
-# export XCURSOR_THEME="miku-cursor-linux"
-# export XCURSOR_PATH=${XCURSOR_PATH}:~/.local/share/icons
-
 export MPD_HOST="localhost"
 export MPD_PORT="6669"
 
