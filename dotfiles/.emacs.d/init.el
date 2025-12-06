@@ -404,7 +404,9 @@
   (setq lsp-headerline-breadcrumb-enable nil)
   (setq lsp-enable-which-key-integration t)
   :config
-  (setq lsp-clients-clangd-args '("--header-insertion=never"))
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-enable-indentation nil)
+  (setq lsp-clients-clangd-args '("--fallback-style=none" "--clang-tidy=0" "--header-insertion=never"))
   (dolist (el adam/lsp-mode-hooks)
     (add-hook el 'lsp-mode)))
 
