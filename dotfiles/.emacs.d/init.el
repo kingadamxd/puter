@@ -95,21 +95,6 @@
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
-(use-package vertico
-  :init
-  (vertico-mode)
-  :bind (:map vertico-map
-              ("C-j" . vertico-next)
-              ("C-k" . vertico-previous))
-  :config
-  (setq vertico-cycle t)
-  (setq imenu-auto-rescan t)
-  (setq completion-styles (list 'flex)))
-
-(use-package marginalia
-  :init
-  (marginalia-mode))
-
 (defun adam/elisp-regex-generate (matches)
     (mapcar (lambda (m)
               (list (car m) (concat "^\\s-*(" (cdr m) "\\s-+\\([[:graph:]]+\\)") 1)) matches))
@@ -130,6 +115,34 @@
   :hook (emacs-lisp-mode . adam/elisp-setup)
   :config
   (context-menu-mode t))
+
+(use-package counsel)
+
+(use-package ivy
+  :bind
+  (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq enable-recursive-minibuffers t)
+  (setq ivy-height 20)
+  (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
+  (ivy-mode 1))
+
+(use-package ivy-rich
+  :after ivy)
 
 (use-package swiper)
 
@@ -303,7 +316,15 @@
 
 (use-package multiple-cursors)
 
-(use-package helpful)
+(use-package helpful
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
 
 (use-package magit)
 (use-package git-gutter
@@ -341,8 +362,8 @@
   :config
   (setq inferior-lisp-program "/bin/sbcl --dynamic-space-size 4Gb"))
 
-(use-package sly-asdf)
-(use-package sly-quicklisp)
+;; (use-package sly-asdf)
+;; (use-package sly-quicklisp)
 
 (use-package clojure-mode)
 (use-package cider)
@@ -350,7 +371,8 @@
 (use-package geiser)
 (use-package geiser-guile)
 
-(use-package cc-mode
+(use-package simpc-mode
+  :straight (simpc-mode :type git :host github :repo "rexim/simpc-mode")
   :config
   (c-add-style
    "adam"
@@ -364,7 +386,8 @@
       (block-open . +)
       (brace-list-open . +)
       (case-label . +))))
-  (setq c-default-style "adam"))
+  (setq c-default-style "adam")
+  (add-to-list 'auto-mode-alist '("\\.[hc]\\(pp\\)?\\'" . simpc-mode)))
 
 (use-package zig-mode
   :config
@@ -395,7 +418,8 @@
     zig-mode-hook
     gdscript-mode-hook
     c-mode-hook
-    c++-mode-hook))
+    c++-mode-hook
+    simpc-mode-hook))
 
 (use-package lsp-mode
   :init
@@ -408,13 +432,16 @@
   (setq lsp-enable-indentation nil)
   (setq lsp-clients-clangd-args '("--fallback-style=none" "--clang-tidy=0" "--header-insertion=never"))
   (dolist (el adam/lsp-mode-hooks)
-    (add-hook el 'lsp-mode)))
+    (add-hook el 'lsp-mode))
+  (add-to-list 'lsp-language-id-configuration '(simpc-mode . "c")))
 
 (use-package lsp-ui
   :config
   (setq lsp-ui-doc-enable nil)
   (setq lsp-ui-doc-show-with-cursor nil)
   (setq lsp-ui-doc-show-with-mouse nil))
+
+(use-package lsp-ivy)
 
 (use-package general
   :config
@@ -426,7 +453,7 @@
     :prefix "SPC"
     :global-prefix "C-SPC")
   (adam/leader-keys
-    "SPC" '(execute-extended-command :wk "M-x")
+    "SPC" '(adam/M-x :wk "M-x")
 
     "s" '(:ignore t :wk "search")
     "ss" '(swiper :wk "search swiper")
@@ -440,7 +467,6 @@
     "fh" '(adam/goto-homepage :wk "find homepage")
     "fp" '(list-processes :wk "find processes")
     "ff" '(adam/fuzzy-find :wk "find fuzzy-contextual")
-    "fa" '(lsp-ivy-workspace-symbol :wk "find lsp symbol")
     "f." '(find-file-existing :wk "find file")
     "f," '(projectile-find-file :wk "find project file")
     "fz" '(projectile-switch-project :wk "find project")
@@ -514,4 +540,3 @@
 
 (provide 'init)
 ;;; init.el ends here
-(put 'narrow-to-region 'disabled nil)

@@ -46,6 +46,36 @@
   (interactive)
   (load-file user-init-file))
 
+(defun adam/switch-buffer ()
+  "Switch to buffer command."
+  (interactive)
+  (call-interactively #'counsel-switch-buffer))
+
+(defun adam/ibuffer ()
+  "Interactive buffer menu."
+  (interactive)
+  (call-interactively #'ibuffer))
+
+(defun adam/find-file ()
+  "Find file."
+  (interactive)
+  (call-interactively #'find-file-existing))
+
+(defun adam/find-file-new ()
+  "File file new."
+  (interactive)
+  (call-interactively #'counsel-find-file))
+
+(defun adam/imenu ()
+  "Interactive menu."
+  (interactive)
+  (call-interactively #'counsel-imenu))
+
+(defun adam/M-x ()
+  "Meta X."
+  (interactive)
+  (call-interactively #'counsel-M-x))
+
 (defun adam/lookup-func ()
   "Lookup symbol under cursor."
   (interactive)
@@ -56,10 +86,10 @@
         (t (call-interactively #'man))))
 
 (defvar adam/fuzzy-find-alist
-  '((dired-mode . find-file)
-    (eshell-mode . find-file)
-    (ibuffer-mode . switch-to-buffer)
-    (t . imenu)))
+  '((dired-mode . adam/find-file)
+    (eshell-mode . adam/find-file)
+    (ibuffer-mode . adam/switch-to-buffer)
+    (t . adam/imenu)))
 
 (defun adam/fuzzy-find ()
   "Fuzzy find based on the contents of the current buffer."
@@ -74,7 +104,7 @@
   "Use linux tar util to tar a file FILE-PATH and output to OUTPUT-PATH."
   (interactive "Ftar: ")
   (let* ((output (or output-path (concat "./" (adam/change-file-suffix file-path "tar.gz"))))
-         (cmd (concat "tar -cvf" " " output " " file-path)))
+         (cmd (concat "tar -cavf" " " output " " file-path)))
     (start-process-shell-command cmd nil cmd)))
 
 (defun adam/untar-file (file-path)
