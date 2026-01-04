@@ -4,6 +4,16 @@
 
 (require 'json)
 
+(defun symbol-value-or (symbol &optional value)
+  "Get the value of a symbol or return the optional value, default nil."
+  (if (boundp symbol)
+      (symbol-value symbol)
+    value))
+
+(defun shell-command-to-number (command)
+  "Launch sync shell command and return its output throught the string-to-number function."
+  (string-to-number (shell-command-to-string command)))
+
 (defun adam/qoutize-string (str)
   "Surround a string STR in \"\" qoutes."
   (concat "\"" str "\""))
@@ -31,6 +41,7 @@
      'default-frame-alist
      `(font . ,font-frame))))
 
+
 (defun adam/goto-init-file ()
   "Open init file."
   (interactive)
@@ -49,7 +60,8 @@
 (defun adam/switch-buffer ()
   "Switch to buffer command."
   (interactive)
-  (call-interactively #'counsel-switch-buffer))
+  (let ((ivy-use-virtual-buffers nil))
+    (call-interactively #' counsel-switch-buffer)))
 
 (defun adam/ibuffer ()
   "Interactive buffer menu."
@@ -100,6 +112,28 @@
         (call-interactively (cdr b))
       (error "no fallback value found"))))
 
+(defun adam/kill-window ()
+  "Kill the current window."
+  (interactive)
+  (evil-window-delete))
+
+(defun adam/kill-other-windows ()
+  "Kill the other windows making the current window the main one."
+  (interactive)
+  (delete-other-windows-internal))
+
+(defun adam/switch-window-below ()
+  "Split the window below and move cursor to the newly spawned window."
+  (interactive)
+  (split-window-below)
+  (other-window 1))
+
+(defun adam/switch-window-right ()
+  "Split the window right and move cursor to the newly spawned window."
+  (interactive)
+  (split-window-right)
+  (other-window 1))
+
 (defun adam/tar-file (file-path &optional output-path)
   "Use linux tar util to tar a file FILE-PATH and output to OUTPUT-PATH."
   (interactive "Ftar: ")
@@ -119,15 +153,7 @@
   (let ((cmd (concat "yt-dlp -f bestaudio -x --audio-format mp3 --audio-quality 330k" " " url)))
     (start-process-shell-command cmd nil cmd)))
 
-(defun adam/puter-linkup ()
-  "Relink all the puter based files."
-  (interactive)
-  (if (shell-command "~/puter/scriptz/puter-linkup")
-      (message "Linked-up!")
-      (message "Linked-up failed!")))
-
 (defvar adam/auth-file "~/adam/auth.json")
-
 
 (defun adam/lookup-auth (auth-sym)
   "Fetch a given auth string from the auth-file with a given symbol: AUTH-SYM."
@@ -148,11 +174,9 @@
   (let ((inhibit-read-only t))
     (erase-buffer)))
 
-(defun adam/xsettings ()
-  "Call puter xsettings script."
-  (interactive)
-  (shell-command "puter-xsettings")
-  (message "XSettings applied"))
+(defun adam/empty-buffer ()
+  "Creates a new empty buffer in the current window."
+  (interactive))
 
 (defun adam/eshell ()
   "Start eshell mode in the current directory."

@@ -95,9 +95,11 @@
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
+(defvar adam/emacs-symbol-regex "\\(?:\\sw\\|\\s_\\|\\\\.\\)+\\(?:\\sw\\|\\s_\\|\\\\.\\|[0-9]\\)*")
+
 (defun adam/elisp-regex-generate (matches)
     (mapcar (lambda (m)
-              (list (car m) (concat "^\\s-*(" (cdr m) "\\s-+\\([[:graph:]]+\\)") 1)) matches))
+              (list (car m) (concat "^\\s-*(" (cdr m) (concat "\\s-+\\(" adam/emacs-symbol-regex "\\)")) 1)) matches))
 
 (defvar adam/elisp-regex (adam/elisp-regex-generate
                           '(("function" . "defun")
@@ -116,7 +118,14 @@
   :config
   (context-menu-mode t))
 
-(use-package counsel)
+(use-package counsel
+  :config
+  (setq counsel-linux-app-format-function #'counsel-linux-app-format-function-name-pretty))
+
+(defun adam/fuzzy-re-builder (str)
+  "Convert STR to custom regex."
+  (let ((case-fold-search t))
+    (ivy--regex-fuzzy str)))
 
 (use-package ivy
   :bind
@@ -138,8 +147,8 @@
   (setq ivy-count-format "(%d/%d) ")
   (setq enable-recursive-minibuffers t)
   (setq ivy-height 20)
-  (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
-  (ivy-mode 1))
+  (setq ivy-re-builders-alist '((t . adam/fuzzy-re-builder)))
+  (ivy-mode 1)) 
 
 (use-package ivy-rich
   :after ivy)
@@ -203,38 +212,6 @@
   (setq doom-modeline-height 28)
   (setq doom-modeline-enable-word-count t))
 
-(use-package evil
-  :init
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  (setq evil-want-C-u-scroll t)
-  (setq evil-want-C-i-jump nil)
-  (setq evil-want-minibuffer nil)
-  :config
-  (evil-mode 1)
-  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-  (evil-set-initial-state 'messages-buffer-mode 'normal)
-  (evil-set-initial-state 'dashboard-mode 'normal)
-  (setq evil-lookup-func #'adam/lookup-func))
-
-(use-package evil-lispy
-  :after
-  evil
-  :config
-  (add-hook 'evil-mode-hook #'evil-lispy-mode))
-
-(use-package evil-collection
-  :after
-  evil
-  :config
-  (evil-collection-init))
-
-(use-package evil-nerd-commenter
-  :bind
-  ("C-;" . evilnc-comment-or-uncomment-lines))
-
 (use-package projectile
   :config
   (projectile-mode)
@@ -251,48 +228,6 @@
 (use-package yasnippet
   :config
   (yas-global-mode 1))
-
-(use-package dired
-  :straight nil
-  :commands (dired dired-jump)
-  :bind
-  (("C-x C-j" . dired-jump))
-  :custom
-  ((dired-listing-switches "-lah --group-directories-first"))
-  :config
-  (setq dired-kill-when-opening-new-dired-buffer t)
-  (evil-collection-define-key 'normal 'dired-mode-map
-    "h" 'dired-up-directory
-    "l" 'dired-find-file
-    "R" 'dired-do-rename
-    "C" 'dired-do-copy
-    "D" 'dired-do-delete)
-  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
-
-(setq adam/pdf-reader "okular")
-(setq adam/image-viewer "feh")
-(setq adam/video-player "mpv")
-
-(use-package dired-open
-  :config
-  (setq dired-open-extensions
-        `(("gif" . ,adam/image-viewer)
-          ("jpg" . ,adam/image-viewer)
-          ("png" . ,adam/image-viewer)
-          ("mkv" . ,adam/video-player)
-          ("mp4" . ,adam/video-player)
-          ("webm" . ,adam/video-player)
-          ("xcf" . "gimp")
-          ("kra" . "krita")
-          ("pdf" . ,adam/pdf-reader)
-          ("cbr" . ,adam/pdf-reader)
-          ("epub" . ,adam/pdf-reader)
-          ("blend" . "blender"))))
-
-(use-package dired-hide-dotfiles
-  :config
-  (evil-collection-define-key 'normal 'dired-mode-map
-    "H" 'dired-hide-dotfiles-mode))
 
 (use-package eshell
   :bind
@@ -327,6 +262,7 @@
   ([remap describe-key] . helpful-key))
 
 (use-package magit)
+
 (use-package git-gutter
   :config
   (global-git-gutter-mode 1))
@@ -443,6 +379,91 @@
 
 (use-package lsp-ivy)
 
+;; (use-package mini-frame
+;;   :config
+;;   (custom-set-variables
+;;    '(mini-frame-show-parameters
+;;      '((top . 0)
+;;        (width . 1.0)
+;;        (left . 0.5)
+;;        (height . 15))))
+;;   (mini-frame-mode))
+
+(use-package evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-i-jump nil)
+  (setq evil-want-minibuffer nil)
+  :config
+  (evil-mode 1)
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal)
+  (setq evil-lookup-func #'adam/lookup-func))
+
+(use-package evil-lispy
+  :after
+  evil
+  :config
+  (add-hook 'adam-mode-hook #'evil-lispy-mode))
+
+(use-package evil-collection
+  :after
+  evil
+  :config
+  (evil-collection-init))
+
+(use-package evil-nerd-commenter
+  :bind
+  ("C-;" . evilnc-comment-or-uncomment-lines))
+
+(use-package dired
+  :straight nil
+  :commands (dired dired-jump)
+  :bind
+  (("C-x C-j" . dired-jump))
+  :custom
+  ((dired-listing-switches "-lah --group-directories-first"))
+  :config
+  (setq dired-kill-when-opening-new-dired-buffer t)
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "h" 'dired-up-directory
+    "l" 'dired-find-file
+    "R" 'dired-do-rename
+    "C" 'dired-do-copy
+    "D" 'dired-do-delete)
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+
+(setq adam/pdf-reader "okular")
+(setq adam/image-viewer "feh")
+(setq adam/video-player "mpv")
+
+(use-package dired-open
+  :config
+  (setq dired-open-extensions
+        `(("gif" . ,adam/image-viewer)
+          ("jpg" . ,adam/image-viewer)
+          ("png" . ,adam/image-viewer)
+          ("mkv" . ,adam/video-player)
+          ("mp4" . ,adam/video-player)
+          ("webm" . ,adam/video-player)
+          ("xcf" . "gimp")
+          ("kra" . "krita")
+          ("pdf" . ,adam/pdf-reader)
+          ("cbr" . ,adam/pdf-reader)
+          ("epub" . ,adam/pdf-reader)
+          ("blend" . "blender"))))
+
+(use-package dired-hide-dotfiles
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "H" 'dired-hide-dotfiles-mode))
+
+
 (use-package general
   :config
   (general-evil-setup)
@@ -476,7 +497,7 @@
     "gg" '(magit :wk "magit")
 
     "b" '(:ignore t :wk "buffer")
-    "bb" '(switch-to-buffer :wk "buffer switch")
+    "bb" '(adam/switch-buffer :wk "buffer switch")
     "bm" '(ibuffer :wk "buffer menu")
     "bx" '(kill-buffer :wk "buffer kill")
 
@@ -485,17 +506,17 @@
     "ld" '(flycheck-list-errors :wk "lsp errors")
     "la" '(lsp-code-actions-at-point :wk "lsp code action")
 
-    "w" '(:ignore t :wk "window")
-    "w1" '(delete-other-windows-internal :wk "window solo")
-    "wn" '(evil-window-split :wk "window split horizontal")
-    "wv" '(evil-window-vsplit :wk "window split vertical")
-    "ww" '(evil-window-next :wk "window next")
-    "wc" '(evil-window-delete :wk "window close")
-    "wx" '(kill-buffer-and-window :wk "window kill and close")
-    "wh" '(evil-window-left :wk "window left")
-    "wj" '(evil-window-down :wk "window down")
-    "wk" '(evil-window-up :wk "window up")
-    "wl" '(evil-window-right :wk "window right")
+    ;; "w" '(:ignore t :wk "window")
+    ;; "w1" '(delete-other-windows-internal :wk "window solo")
+    ;; "wn" '(evil-window-split :wk "window split horizontal")
+    ;; "wv" '(evil-window-vsplit :wk "window split vertical")
+    ;; "ww" '(evil-window-next :wk "window next")
+    ;; "wc" '(evil-window-delete :wk "window close")
+    ;; "wx" '(kill-buffer-and-window :wk "window kill and close")
+    ;; "wh" '(evil-window-left :wk "window left")
+    ;; "wj" '(evil-window-down :wk "window down")
+    ;; "wk" '(evil-window-up :wk "window up")
+    ;; "wl" '(evil-window-right :wk "window right")
 
     "c" '(:ignore t :wk "command")
     "ce" '(adam/eshell :wk "command eshell")
@@ -526,6 +547,7 @@
 
 
 (require 'adam-mode)
+(require 'puter)
 
 (defvar adam/init-theme 'modus-vivendi-tinted)
 ;; (defvar adam/init-theme 'doom-winter-is-coming-dark-blue)
@@ -540,3 +562,4 @@
 
 (provide 'init)
 ;;; init.el ends here
+(put 'list-timers 'disabled nil)
